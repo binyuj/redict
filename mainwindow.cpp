@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
       m_trayIcon(new TrayIcon(this)),
       m_settings(new QSettings("deepin", "redict")),
       m_menu(new QMenu),
-      m_wordingAction(new QAction)
+      m_wordingAction(new QAction(this))
 {
 
     titlebar()->setCustomWidget(m_toolBar, Qt::AlignVCenter, false);
