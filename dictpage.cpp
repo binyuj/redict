@@ -41,7 +41,6 @@ DictPage::DictPage(QWidget *parent)
     QScrollArea *contentFrame = new QScrollArea;
     contentFrame->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     contentFrame->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    contentFrame->setFocusPolicy(Qt::NoFocus);
     contentFrame->setWidgetResizable(true);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -74,6 +73,9 @@ DictPage::DictPage(QWidget *parent)
     m_wordLabel->setWordWrap(true);
     m_infoLabel->setWordWrap(true);
     m_webLabel->setWordWrap(true);
+
+    m_infoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_webLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     m_webTips->setStyleSheet("QLabel { font-size: 18px; font-weight: bold; }");
     m_wordLabel->setStyleSheet("QLabel { font-size: 25px; font-weight: bold; }");
