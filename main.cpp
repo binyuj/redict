@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     app.setApplicationVersion(DApplication::buildVersion("0.1"));
     app.setApplicationAcknowledgementPage("https://github.com/rekols");
     app.setProductIcon(QIcon(":/images/redict.svg"));
-    app.setProductName(DApplication::translate("Main", "Rekols Dictionary"));
+    app.setProductName(DApplication::translate("Main", "Rekols's Dictionary"));
     app.setApplicationDescription(DApplication::translate("Main", "ReDict is a simple dictionary for deepin."));
 
     if (!app.setSingleInstance("redict")) {
@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
 
     MainWindow w;
     w.show();
+    w.setStyleSheet(Utils::getQssContent(":/qss/style.qss"));
 
     Dtk::Widget::moveToCenter(&w);
 
