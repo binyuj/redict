@@ -17,39 +17,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DAILYPAGE_H
-#define DAILYPAGE_H
+#ifndef EVENTMONITOR_H
+#define EVENTMONITOR_H
 
-#include <QWidget>
-#include <QLabel>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include "youdaoapi.h"
+#include <QThread>
+#include <QPoint>
+#include <QDebug>
+#include <QTimer>
 
-class DailyPage : public QWidget
+#include <X11/Xlib.h>
+#include <X11/extensions/record.h>
+
+class EventMonitor : public QThread
 {
     Q_OBJECT
 
 public:
-    DailyPage(QWidget *parent = nullptr);
-    ~DailyPage();
+    EventMonitor(QObject *parent = nullptr);
+    ~EventMonitor();
 
 signals:
-    void loadFinished();
+    void buttonPress(const int x, const int y);
+    void selectionChanged();
+
+protected:
+    void run();
+    static void callback(XPointer trash, XRecordInterceptData* data);
+    void handleEvent(XRecordInterceptData* data);
 
 private:
-    void checkDirectory();
-    void handleQueryFinished(std::tuple<QString, QString, QString, QString, QString>);
-    void loadImage(const QByteArray &data);
+    void resetDoubleClick();
 
 private:
-    QNetworkAccessManager *m_networkManager;
-    QLabel *m_imageLabel;
-    QLabel *m_titleLabel;
-    QLabel *m_summaryLabel;
-    QLabel *m_timeLabel;
-    YoudaoAPI *m_api;
+    bool m_hoverFlag;
+    bool m_doubleClickFlag;
+    bool m_doubleClickTimeout;
+    int m_doubleClickCounter;
 };
 
 #endif
