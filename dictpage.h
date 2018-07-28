@@ -28,18 +28,16 @@
 
 DWIDGET_USE_NAMESPACE
 
+class ScrollArea;
 class DictPage : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     DictPage(QWidget *parent = nullptr);
     ~DictPage();
 
     void queryWord(const QString &text);
-
-signals:
-    void queryFinished();
 
 private:
     void handleQueryFinished(std::tuple<QString, QString, QString, QString, QString>);
@@ -48,13 +46,12 @@ private:
     YoudaoAPI *m_api;
     QLabel *m_wordLabel;
     QLabel *m_infoLabel;
-    QLabel *m_webLabel;
-    QLabel *m_webTips;
     DImageButton *m_ukBtn;
     DImageButton *m_usBtn;
     QLabel *m_ukLabel;
     QLabel *m_usLabel;
     QMediaPlayer *m_audio;
+    ScrollArea *m_scrollArea;
 };
 
 #endif

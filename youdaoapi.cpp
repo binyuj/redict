@@ -54,9 +54,36 @@ void YoudaoAPI::queryWord(const QString &text)
     url.setQuery(query.toString(QUrl::FullyEncoded));
 
     QNetworkRequest request(url);
-    m_http->get(request);
+    QNetworkReply *reply = m_http->get(request);
 
-    connect(m_http, &QNetworkAccessManager::finished, this, &YoudaoAPI::queryWordFinished);
+    connect(reply, &QNetworkReply::finished, this, &YoudaoAPI::handleQueryWordFinished);
+}
+
+void YoudaoAPI::translate(const QString &text, const QString &type)
+{
+    QUrl url("http://fanyi.youdao.com/translate");
+    QUrlQuery query;
+    query.addQueryItem("dogVersion", "1.0");
+    query.addQueryItem("ue", "utf8");
+    query.addQueryItem("doctype", "json");
+    query.addQueryItem("xmlVersion", "1.6");
+    query.addQueryItem("client", "deskdict_deepin");
+    query.addQueryItem("id", "92dc50aa4970fb72d");
+    query.addQueryItem("vendor", "YoudaoDict");
+    query.addQueryItem("appVer", "1.0.3");
+    query.addQueryItem("appZengqiang", "0");
+    query.addQueryItem("abTest", "5");
+    query.addQueryItem("smartresult", "dict");
+    query.addQueryItem("smartresult", "rule");
+    query.addQueryItem("keyfrom", "deskdict.main");
+    query.addQueryItem("i", text);
+    query.addQueryItem("type", type);
+    url.setQuery(query.toString(QUrl::FullyEncoded));
+
+    QNetworkRequest request(url);
+    QNetworkReply *reply = m_http->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, &YoudaoAPI::handleTranslateFinished);
 }
 
 void YoudaoAPI::queryDaily()
@@ -72,13 +99,15 @@ void YoudaoAPI::queryDaily()
     url.setQuery(query.toString(QUrl::FullyEncoded));
 
     QNetworkRequest request(url);
-    m_http->get(request);
+    QNetworkReply *reply = m_http->get(request);
 
-    connect(m_http, &QNetworkAccessManager::finished, this, &YoudaoAPI::queryDailyFinished);
+    connect(reply, &QNetworkReply::finished, this, &YoudaoAPI::handleQueryDailyFinished);
 }
 
-void YoudaoAPI::queryWordFinished(QNetworkReply *reply)
+void YoudaoAPI::handleQueryWordFinished()
 {
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
     if (reply->error() != QNetworkReply::NoError) {
         return;
     }
@@ -98,7 +127,7 @@ void YoudaoAPI::queryWordFinished(QNetworkReply *reply)
         // get the basic data.
         for (const QJsonValue &value : explain) {
             basicExplains.append(value.toString());
-            basicExplains.append("\n");
+            basicExplains.append("<br>");
         }
 
         // Access to the web references.
@@ -110,19 +139,21 @@ void YoudaoAPI::queryWordFinished(QNetworkReply *reply)
                 QJsonArray arr = obj.value(key).toArray();
 
                 for (const QJsonValue &value : arr) {
+                    webReferences += "<br>";
                     webReferences += QString("• %1 : %2").arg(key).arg(value.toString());
-                    webReferences += "\n";
+                    webReferences += "</br>";
                 }
             }
         }
 
         emit searchFinished(std::make_tuple(queryWord, ukPhonetic, usPhonetic, basicExplains, webReferences));
     }
-
 }
 
-void YoudaoAPI::queryDailyFinished(QNetworkReply *reply)
+void YoudaoAPI::handleQueryDailyFinished()
 {
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
     if (reply->error() != QNetworkReply::NoError) {
         return;
     }
@@ -143,4 +174,28 @@ void YoudaoAPI::queryDailyFinished(QNetworkReply *reply)
     time = dateTime.toString("yyyy-MM-dd");
 
     emit dailyFinished(std::make_tuple(title, summary, time, voiceURL, imageURL));
+}
+
+void YoudaoAPI::handleTranslateFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+    if (reply->error() != QNetworkReply::NoError) {
+        return;
+    }
+
+    QJsonDocument document = QJsonDocument::fromJson(reply->readAll());
+    QJsonArray array = document.object().value("translateResult").toArray();
+    QString text;
+
+    for (const QJsonValue &value : array) {
+        QJsonArray arr = value.toArray();
+        for (const QJsonValue &value : arr) {
+            QString ret = value.toObject().value("tgt").toString();
+            text += ret;
+            text += "\n";
+        }
+    }
+
+    emit translateFinished(text);
 }

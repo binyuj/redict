@@ -18,12 +18,11 @@
  */
 
 #include "dailypage.h"
-#include <QScrollArea>
+#include "scrollarea.h"
 #include <QVBoxLayout>
 #include <QTimer>
 #include <QFile>
 #include <QDir>
-#include <QDebug>
 
 DailyPage::DailyPage(QWidget *parent)
     : QWidget(parent),
@@ -34,35 +33,36 @@ DailyPage::DailyPage(QWidget *parent)
       m_timeLabel(new QLabel),
       m_api(new YoudaoAPI)
 {
-    QScrollArea *scrollArea = new QScrollArea;
+    ScrollArea *scrollArea = new ScrollArea;
     QWidget *contentWidget = new QWidget;
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    scrollArea->setFocusPolicy(Qt::NoFocus);
-    scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(contentWidget);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     QVBoxLayout *contentLayout = new QVBoxLayout(contentWidget);
+    QVBoxLayout *textLayout = new QVBoxLayout;
 
     m_imageLabel->setFixedHeight(200);
-    m_imageLabel->setFixedWidth(530);
+    m_imageLabel->setFixedWidth(546);
     m_imageLabel->setScaledContents(true);
 
     m_titleLabel->setWordWrap(true);
     m_summaryLabel->setWordWrap(true);
     m_timeLabel->setWordWrap(true);
 
-    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setMargin(0);
+    mainLayout->setSpacing(0);
     mainLayout->addWidget(scrollArea);
+
+    textLayout->setContentsMargins(10, 0, 10, 0);
+    textLayout->addSpacing(8);
+    textLayout->addWidget(m_titleLabel);
+    textLayout->addWidget(m_summaryLabel);
+    textLayout->addSpacing(10);
+    textLayout->addWidget(m_timeLabel);
 
     contentLayout->setContentsMargins(0, 0, 0, 0);
     contentLayout->addWidget(m_imageLabel);
-    contentLayout->addSpacing(8);
-    contentLayout->addWidget(m_titleLabel);
-    contentLayout->addWidget(m_summaryLabel);
-    contentLayout->addSpacing(10);
-    contentLayout->addWidget(m_timeLabel);
+    contentLayout->addLayout(textLayout);
     contentLayout->addStretch();
 
     QTimer::singleShot(100, m_api, &YoudaoAPI::queryDaily);

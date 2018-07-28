@@ -18,16 +18,15 @@
  */
 
 #include "dictpage.h"
+#include "scrollarea.h"
 #include <QVBoxLayout>
-#include <QScrollArea>
+#include <QScrollBar>
 
 DictPage::DictPage(QWidget *parent)
     : QWidget(parent),
       m_api(new YoudaoAPI),
       m_wordLabel(new QLabel),
       m_infoLabel(new QLabel),
-      m_webLabel(new QLabel),
-      m_webTips(new QLabel("网络释义")),
       m_ukLabel(new QLabel),
       m_usLabel(new QLabel),
       m_ukBtn(new DImageButton(":/images/audio-volume-high-normal.svg",
@@ -38,46 +37,45 @@ DictPage::DictPage(QWidget *parent)
                                ":/images/audio-volume-high-press.svg")),
       m_audio(new QMediaPlayer)
 {
-    QScrollArea *contentFrame = new QScrollArea;
-    contentFrame->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    contentFrame->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    ScrollArea *contentFrame = new ScrollArea;
+    m_scrollArea = contentFrame;
     contentFrame->setWidgetResizable(true);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 10);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(contentFrame);
+    layout->addSpacing(15);
 
     QWidget *contentWidget = new QWidget;
     QVBoxLayout *contentLayout = new QVBoxLayout(contentWidget);
     QHBoxLayout *phoneticLayout = new QHBoxLayout;
 
     phoneticLayout->addWidget(m_ukLabel);
+    phoneticLayout->addSpacing(5);
     phoneticLayout->addWidget(m_ukBtn);
     phoneticLayout->addSpacing(70);
     phoneticLayout->addWidget(m_usLabel);
+    phoneticLayout->addSpacing(5);
     phoneticLayout->addWidget(m_usBtn);
     phoneticLayout->addStretch();
 
-    contentLayout->setContentsMargins(10, 0, 10, 0);
+    contentLayout->setSpacing(0);
+    contentLayout->setContentsMargins(20, 0, 20, 0);
+    contentLayout->addSpacing(5);
     contentLayout->addWidget(m_wordLabel);
+    contentLayout->addSpacing(4);
     contentLayout->addLayout(phoneticLayout);
     contentLayout->addSpacing(5);
     contentLayout->addWidget(m_infoLabel);
-    contentLayout->addWidget(m_webTips);
-    contentLayout->addSpacing(5);
-    contentLayout->addWidget(m_webLabel);
     contentLayout->addStretch();
 
     contentFrame->setWidget(contentWidget);
 
     m_wordLabel->setWordWrap(true);
     m_infoLabel->setWordWrap(true);
-    m_webLabel->setWordWrap(true);
 
     m_infoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    m_webLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-    m_webTips->setStyleSheet("QLabel { font-size: 18px; font-weight: bold; }");
     m_wordLabel->setStyleSheet("QLabel { font-size: 25px; font-weight: bold; }");
     m_infoLabel->setStyleSheet("QLabel { font-size: 16px; } ");
 
@@ -100,6 +98,11 @@ DictPage::~DictPage()
 
 void DictPage::queryWord(const QString &text)
 {
+    if (text == m_wordLabel->text()) {
+        return;
+    }
+
+    m_scrollArea->verticalScrollBar()->setValue(0);
     m_api->queryWord(text);
 }
 
@@ -126,15 +129,14 @@ void DictPage::handleQueryFinished(std::tuple<QString, QString, QString, QString
         m_usLabel->setText(QString("美 [%1]").arg(usPhonetic));
     }
 
-    if (webReferences.isEmpty()) {
-        m_webTips->setVisible(false);
-    } else {
-        m_webTips->setVisible(true);
+    m_wordLabel->setText(queryWord);
+
+    QString text = basicExplains;
+
+    if (!webReferences.isEmpty()) {
+        text += "<br><b>网络释义</b></br>";
+        text += webReferences;
     }
 
-    m_wordLabel->setText(queryWord);
-    m_infoLabel->setText(basicExplains);
-    m_webLabel->setText(webReferences);
-
-    emit queryFinished();
+    m_infoLabel->setText(text);
 }

@@ -36,6 +36,8 @@ HomePage::HomePage(QWidget *parent)
     QHBoxLayout *queryLayout = new QHBoxLayout;
     queryLayout->addWidget(m_queryEdit);
     queryLayout->addWidget(queryBtn);
+    queryLayout->setSpacing(0);
+    queryLayout->setMargin(0);
 
     queryBtn->setFocusPolicy(Qt::NoFocus);
     queryBtn->setObjectName("QueryBtn");
@@ -46,11 +48,13 @@ HomePage::HomePage(QWidget *parent)
     m_queryEdit->setObjectName("QueryEdit");
     m_queryEdit->setFixedHeight(35);
 
-    mainLayout->setContentsMargins(20, 10, 20, 0);
+    mainLayout->setMargin(0);
+    mainLayout->setSpacing(0);
     mainLayout->addLayout(queryLayout);
-    mainLayout->addSpacing(5);
     mainLayout->addLayout(m_layout);
 
+    m_layout->setMargin(0);
+    m_layout->setSpacing(0);
     m_layout->addWidget(m_dailyPage);
     m_layout->addWidget(m_dictPage);
     m_layout->addWidget(m_loadPage);
@@ -64,16 +68,7 @@ HomePage::HomePage(QWidget *parent)
 
     connect(m_dailyPage, &DailyPage::loadFinished, this,
             [=] {
-                if (m_currentIndex != 1) {
-                    m_layout->setCurrentIndex(0);
-                    m_loadPage->stop();
-                }
-            });
-
-    connect(m_dictPage, &DictPage::queryFinished, this,
-            [=] {
-                m_currentIndex = 1;
-                m_layout->setCurrentIndex(1);
+                m_layout->setCurrentIndex(0);
                 m_loadPage->stop();
             });
 }
@@ -89,8 +84,7 @@ void HomePage::queryWord()
     if (text.isEmpty()) {
         m_layout->setCurrentIndex(0);
     } else {
-        m_loadPage->start();
-        m_layout->setCurrentIndex(2);
+        m_layout->setCurrentIndex(1);
         m_dictPage->queryWord(m_queryEdit->text());
     }
 }

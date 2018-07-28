@@ -17,30 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOADPAGE_H
-#define LOADPAGE_H
+#include "scrollarea.h"
+#include <QScrollBar>
 
-#include <QWidget>
-#include "dspinner.h"
-
-DWIDGET_USE_NAMESPACE
-
-class LoadPage : public QWidget
+ScrollArea::ScrollArea(QWidget *parent)
+    : QScrollArea(parent)
 {
-    Q_OBJECT
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setFocusPolicy(Qt::NoFocus);
+    setWidgetResizable(true);
 
-public:
-    LoadPage(QWidget *parent = nullptr);
-    ~LoadPage();
+    setViewportMargins(0, 0, -verticalScrollBar()->sizeHint().width(), 0);
 
-    void start();
-    void stop();
+}
 
-    bool isFinished() { return m_isFinished; }
-
-private:
-    DSpinner *m_spinner;
-    bool m_isFinished;
-};
-
-#endif
+ScrollArea::~ScrollArea()
+{
+}

@@ -17,30 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOADPAGE_H
-#define LOADPAGE_H
+#ifndef SCROLLAREA_H
+#define SCROLLAREA_H
 
-#include <QWidget>
-#include "dspinner.h"
+#include <QScrollArea>
 
-DWIDGET_USE_NAMESPACE
-
-class LoadPage : public QWidget
+class ScrollArea : public QScrollArea
 {
     Q_OBJECT
 
 public:
-    LoadPage(QWidget *parent = nullptr);
-    ~LoadPage();
-
-    void start();
-    void stop();
-
-    bool isFinished() { return m_isFinished; }
-
-private:
-    DSpinner *m_spinner;
-    bool m_isFinished;
+    ScrollArea(QWidget *parent = nullptr);
+    ~ScrollArea();
 };
 
 #endif
