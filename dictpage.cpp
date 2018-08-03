@@ -19,22 +19,19 @@
 
 #include "dictpage.h"
 #include "scrollarea.h"
+#include "dthememanager.h"
 #include <QVBoxLayout>
 #include <QScrollBar>
 
 DictPage::DictPage(QWidget *parent)
     : QWidget(parent),
-      m_api(new YoudaoAPI),
+      m_api(YoudaoAPI::instance()),
       m_wordLabel(new QLabel),
       m_infoLabel(new QLabel),
       m_ukLabel(new QLabel),
       m_usLabel(new QLabel),
-      m_ukBtn(new DImageButton(":/images/audio-volume-high-normal.svg",
-                               ":/images/audio-volume-high-hover.svg",
-                               ":/images/audio-volume-high-press.svg")),
-      m_usBtn(new DImageButton(":/images/audio-volume-high-normal.svg",
-                               ":/images/audio-volume-high-hover.svg",
-                               ":/images/audio-volume-high-press.svg")),
+      m_ukBtn(new DImageButton),
+      m_usBtn(new DImageButton),
       m_audio(new QMediaPlayer)
 {
     ScrollArea *contentFrame = new ScrollArea;
@@ -61,11 +58,11 @@ DictPage::DictPage(QWidget *parent)
 
     contentLayout->setSpacing(0);
     contentLayout->setContentsMargins(20, 0, 20, 0);
-    contentLayout->addSpacing(5);
+    contentLayout->addSpacing(8);
     contentLayout->addWidget(m_wordLabel);
     contentLayout->addSpacing(4);
     contentLayout->addLayout(phoneticLayout);
-    contentLayout->addSpacing(5);
+    contentLayout->addSpacing(6);
     contentLayout->addWidget(m_infoLabel);
     contentLayout->addStretch();
 
@@ -75,9 +72,15 @@ DictPage::DictPage(QWidget *parent)
     m_infoLabel->setWordWrap(true);
 
     m_infoLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_ukLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_usLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-    m_wordLabel->setStyleSheet("QLabel { font-size: 25px; font-weight: bold; }");
+    m_wordLabel->setStyleSheet("QLabel { color: #2CA7F8; font-size: 25px; font-weight: bold; }");
     m_infoLabel->setStyleSheet("QLabel { font-size: 16px; } ");
+
+    initTheme();
+
+    connect(DThemeManager::instance(), &DThemeManager::themeChanged, this, &DictPage::initTheme);
 
     connect(m_api, &YoudaoAPI::searchFinished, this, &DictPage::handleQueryFinished);
 
@@ -106,6 +109,27 @@ void DictPage::queryWord(const QString &text)
     m_api->queryWord(text);
 }
 
+void DictPage::initTheme()
+{
+    const bool isDark = DThemeManager::instance()->theme() == "dark";
+
+    if (isDark) {
+        m_ukBtn->setNormalPic(":/images/audio-dark-normal.svg");
+        m_ukBtn->setHoverPic(":/images/audio-dark-hover.svg");
+        m_ukBtn->setPressPic(":/images/audio-dark-press.svg");
+        m_usBtn->setNormalPic(":/images/audio-dark-normal.svg");
+        m_usBtn->setHoverPic(":/images/audio-dark-hover.svg");
+        m_usBtn->setPressPic(":/images/audio-dark-press.svg");
+    } else {
+        m_ukBtn->setNormalPic(":/images/audio-light-normal.svg");
+        m_ukBtn->setHoverPic(":/images/audio-light-hover.svg");
+        m_ukBtn->setPressPic(":/images/audio-light-press.svg");
+        m_usBtn->setNormalPic(":/images/audio-light-normal.svg");
+        m_usBtn->setHoverPic(":/images/audio-light-hover.svg");
+        m_usBtn->setPressPic(":/images/audio-light-press.svg");
+    }
+}
+
 void DictPage::handleQueryFinished(std::tuple<QString, QString, QString, QString, QString> data)
 {
     const QString &queryWord = std::get<0>(data);
@@ -114,18 +138,21 @@ void DictPage::handleQueryFinished(std::tuple<QString, QString, QString, QString
     const QString &basicExplains = std::get<3>(data);
     const QString &webReferences = std::get<4>(data);
 
-    if (ukPhonetic.isEmpty() && usPhonetic.isEmpty()) {
+    if (ukPhonetic.isEmpty()) {
         m_ukLabel->setVisible(false);
-        m_usLabel->setVisible(false);
         m_ukBtn->setVisible(false);
-        m_usBtn->setVisible(false);
     } else {
         m_ukLabel->setVisible(true);
-        m_usLabel->setVisible(true);
         m_ukBtn->setVisible(true);
-        m_usBtn->setVisible(true);
-
         m_ukLabel->setText(QString("英 [%1]").arg(ukPhonetic));
+    }
+
+    if (usPhonetic.isEmpty()) {
+        m_usLabel->setVisible(false);
+        m_usBtn->setVisible(false);
+    } else {
+        m_usLabel->setVisible(true);
+        m_usBtn->setVisible(true);
         m_usLabel->setText(QString("美 [%1]").arg(usPhonetic));
     }
 

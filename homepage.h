@@ -21,9 +21,9 @@
 #define HOMEPAGE_H
 
 #include <QWidget>
-#include <QLineEdit>
 #include <QStackedLayout>
 
+#include "widgets/queryedit.h"
 #include "dailypage.h"
 #include "dictpage.h"
 #include "loadpage.h"
@@ -44,7 +44,7 @@ private:
     DailyPage *m_dailyPage;
     DictPage *m_dictPage;
     LoadPage *m_loadPage;
-    QLineEdit *m_queryEdit;
+    QueryEdit *m_queryEdit;
 
     int m_currentIndex = 0;
 };

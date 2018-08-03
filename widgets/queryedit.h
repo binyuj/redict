@@ -17,38 +17,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DAILYPAGE_H
-#define DAILYPAGE_H
+#ifndef QUERYEDIT_H
+#define QUERYEDIT_H
 
-#include <QWidget>
+#include <QLineEdit>
+#include <QListView>
 #include <QLabel>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
+#include <QStringListModel>
 #include "youdaoapi.h"
+#include "dsvgrenderer.h"
+#include "dimagebutton.h"
 
-class DailyPage : public QWidget
+DWIDGET_USE_NAMESPACE
+
+class QueryEdit : public QLineEdit
 {
     Q_OBJECT
 
 public:
-    DailyPage(QWidget *parent = nullptr);
-    ~DailyPage();
+    QueryEdit(QWidget *parent = nullptr);
+    ~QueryEdit();
 
-signals:
-    void loadFinished();
-
-private:
-    void checkDirectory();
-    void clearImageCache();
-    void handleQueryFinished(std::tuple<QString, QString, QString, QString, QString>);
-    void loadImage(const QByteArray &data);
+protected:
+    void keyPressEvent(QKeyEvent *);
+    void focusInEvent(QFocusEvent *);
+    void focusOutEvent(QFocusEvent *);
 
 private:
-    QNetworkAccessManager *m_networkManager;
-    QLabel *m_imageLabel;
-    QLabel *m_contentLabel;
+    void initTheme();
+    void handleSuggest(const QStringList &list);
+
+private:
+    QListView *m_listView;
+    QStringListModel *m_listModel;
     YoudaoAPI *m_api;
+    DImageButton *m_closeBtn;
+    QLabel *m_iconLabel;
+    bool m_isEnter;
 };
 
 #endif

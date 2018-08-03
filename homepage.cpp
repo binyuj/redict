@@ -28,7 +28,7 @@ HomePage::HomePage(QWidget *parent)
       m_dailyPage(new DailyPage),
       m_dictPage(new DictPage),
       m_loadPage(new LoadPage),
-      m_queryEdit(new QLineEdit)
+      m_queryEdit(new QueryEdit)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     QPushButton *queryBtn = new QPushButton("查询");
@@ -43,11 +43,6 @@ HomePage::HomePage(QWidget *parent)
     queryBtn->setObjectName("QueryBtn");
     queryBtn->setFixedSize(90, 35);
 
-    m_queryEdit->setPlaceholderText("输入您要翻译的单词或文字");
-    m_queryEdit->setFocusPolicy(Qt::StrongFocus);
-    m_queryEdit->setObjectName("QueryEdit");
-    m_queryEdit->setFixedHeight(35);
-
     mainLayout->setMargin(0);
     mainLayout->setSpacing(0);
     mainLayout->addLayout(queryLayout);
@@ -58,6 +53,8 @@ HomePage::HomePage(QWidget *parent)
     m_layout->addWidget(m_dailyPage);
     m_layout->addWidget(m_dictPage);
     m_layout->addWidget(m_loadPage);
+
+    setFocusPolicy(Qt::ClickFocus);
 
     m_layout->setCurrentIndex(2);
     m_loadPage->start();

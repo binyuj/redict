@@ -23,11 +23,11 @@
 
 TransPage::TransPage(QWidget *parent)
     : QWidget(parent),
-      m_orginEdit(new QPlainTextEdit),
-      m_transEdit(new QPlainTextEdit),
+      m_orginEdit(new TextEdit),
+      m_transEdit(new TextEdit),
       m_typeBox(new QComboBox),
       m_transBtn(new QPushButton("翻译")),
-      m_api(new YoudaoAPI)
+      m_api(YoudaoAPI::instance())
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     QHBoxLayout *transLayout = new QHBoxLayout;
@@ -61,6 +61,9 @@ TransPage::TransPage(QWidget *parent)
     connect(m_transBtn, &QPushButton::clicked, this, &TransPage::translate);
     connect(m_api, &YoudaoAPI::translateFinished, this, &TransPage::handleTranslateFinished);
     connect(m_typeBox, &QComboBox::currentTextChanged, [=] { translate(); });
+
+    connect(m_orginEdit, &TextEdit::focusIn, [=] { m_transEdit->clearSelection(); });
+    connect(m_orginEdit, &TextEdit::focusOut, [=] { m_orginEdit->clearSelection(); });
 }
 
 TransPage::~TransPage()

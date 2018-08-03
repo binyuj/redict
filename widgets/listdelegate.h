@@ -17,38 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DAILYPAGE_H
-#define DAILYPAGE_H
+#ifndef LISTDELEGATE_H
+#define LISTDELEGATE_H
 
-#include <QWidget>
-#include <QLabel>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include "youdaoapi.h"
+#include <QStyledItemDelegate>
 
-class DailyPage : public QWidget
+class ListDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    DailyPage(QWidget *parent = nullptr);
-    ~DailyPage();
+    ListDelegate(QObject *parent = nullptr);
+    ~ListDelegate();
 
-signals:
-    void loadFinished();
-
-private:
-    void checkDirectory();
-    void clearImageCache();
-    void handleQueryFinished(std::tuple<QString, QString, QString, QString, QString>);
-    void loadImage(const QByteArray &data);
-
-private:
-    QNetworkAccessManager *m_networkManager;
-    QLabel *m_imageLabel;
-    QLabel *m_contentLabel;
-    YoudaoAPI *m_api;
+protected:
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QSize sizeHint ( const QStyleOptionViewItem& option, const QModelIndex& index ) const;
 };
 
 #endif

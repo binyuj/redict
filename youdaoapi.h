@@ -30,10 +30,13 @@ class YoudaoAPI : public QObject
     Q_OBJECT
 
 public:
+    static YoudaoAPI *instance();
+
     YoudaoAPI(QObject *parent = nullptr);
     ~YoudaoAPI();
 
     void queryWord(const QString &text);
+    void suggest(const QString &text);
     void translate(const QString &text, const QString &type);
     void queryDaily();
 
@@ -53,11 +56,13 @@ signals:
     void dailyFinished(std::tuple<QString, QString, QString, QString, QString>);
 
     void translateFinished(const QString result);
+    void suggestFinished(const QStringList list);
 
 private slots:
     void handleQueryWordFinished();
     void handleQueryDailyFinished();
     void handleTranslateFinished();
+    void handleSuggestFinished();
 
 private:
     QNetworkAccessManager *m_http;

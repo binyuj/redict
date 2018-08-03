@@ -17,38 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DAILYPAGE_H
-#define DAILYPAGE_H
+#include "textedit.h"
+#include <QFocusEvent>
 
-#include <QWidget>
-#include <QLabel>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include "youdaoapi.h"
-
-class DailyPage : public QWidget
+TextEdit::TextEdit(QWidget *parent)
+    : QPlainTextEdit(parent)
 {
-    Q_OBJECT
 
-public:
-    DailyPage(QWidget *parent = nullptr);
-    ~DailyPage();
+}
 
-signals:
-    void loadFinished();
+TextEdit::~TextEdit()
+{
+}
 
-private:
-    void checkDirectory();
-    void clearImageCache();
-    void handleQueryFinished(std::tuple<QString, QString, QString, QString, QString>);
-    void loadImage(const QByteArray &data);
+void TextEdit::clearSelection()
+{
+    QTextCursor cursor = textCursor();
+    cursor.clearSelection();
+    setTextCursor(cursor);
+}
 
-private:
-    QNetworkAccessManager *m_networkManager;
-    QLabel *m_imageLabel;
-    QLabel *m_contentLabel;
-    YoudaoAPI *m_api;
-};
+void TextEdit::focusInEvent(QFocusEvent *e)
+{
+    QPlainTextEdit::focusInEvent(e);
 
-#endif
+    emit focusIn();
+}
+
+void TextEdit::focusOutEvent(QFocusEvent *e)
+{
+    QPlainTextEdit::focusOutEvent(e);
+
+    emit focusOut();
+}
